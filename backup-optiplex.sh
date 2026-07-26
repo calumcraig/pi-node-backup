@@ -12,13 +12,13 @@ ssh -i /home/calum/.ssh/id_ed25519_backup calum@optiplex.local \
 
 echo "Database dumps complete: $(date)"
 
-rsync -avz \
+rsync -avz --delete-delay \
   --rsync-path="sudo rsync" \
   -e "ssh -i /home/calum/.ssh/id_ed25519_backup" \
   calum@optiplex.local:/srv/backup-staging/ \
   /srv/backup/incoming/
 
-rsync -avz \
+rsync -avz --delete-delay \
   --rsync-path="sudo rsync" \
   --exclude='jellyfin/config/metadata/' \
   --exclude='jellyfin/config/log/' \
@@ -26,7 +26,7 @@ rsync -avz \
   calum@optiplex.local:/srv/docker/ \
   /srv/backup/incoming/docker/
 
-rsync -avz \
+rsync -avz --delete-delay \
   --rsync-path="sudo rsync" \
   --exclude='postgres-nextcloud/' \
   --exclude='postgres-immich/' \
@@ -36,7 +36,7 @@ rsync -avz \
 
 echo "Application data backup complete: $(date)"
 
-rsync -avz \
+rsync -avz --delete-delay \
   --rsync-path="sudo rsync" \
   -e "ssh -i /home/calum/.ssh/id_ed25519_backup" \
   calum@optiplex.local:/srv/storage/immich/ \
