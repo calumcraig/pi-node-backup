@@ -1,0 +1,15 @@
+# Secrets
+.restic-password
+*.env
+
+# Backup data
+incoming/
+restic/
+*.sql
+
+# Logs
+*.log
+
+# SSH keys
+*.pub
+id_*
