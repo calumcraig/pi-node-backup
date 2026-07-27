@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 export RESTIC_PASSWORD_FILE=/home/calum/.restic-password
 RESTIC_REPOSITORY=/srv/backup/restic
@@ -12,13 +12,13 @@ ssh -i /home/calum/.ssh/id_ed25519_backup calum@optiplex.local \
 
 echo "Database dumps complete: $(date)"
 
-rsync -avz --delete-delay \
+rsync -az --delete-delay \
   --rsync-path="sudo rsync" \
   -e "ssh -i /home/calum/.ssh/id_ed25519_backup" \
   calum@optiplex.local:/srv/backup-staging/ \
   /srv/backup/incoming/
 
-rsync -avz --delete-delay \
+rsync -az --delete-delay \
   --rsync-path="sudo rsync" \
   --exclude='jellyfin/config/metadata/' \
   --exclude='jellyfin/config/log/' \
@@ -26,7 +26,7 @@ rsync -avz --delete-delay \
   calum@optiplex.local:/srv/docker/ \
   /srv/backup/incoming/docker/
 
-rsync -avz --delete-delay \
+rsync -az --delete-delay \
   --rsync-path="sudo rsync" \
   --exclude='postgres-nextcloud/' \
   --exclude='postgres-immich/' \
@@ -36,7 +36,7 @@ rsync -avz --delete-delay \
 
 echo "Application data backup complete: $(date)"
 
-rsync -avz --delete-delay \
+rsync -az --delete-delay \
   --rsync-path="sudo rsync" \
   -e "ssh -i /home/calum/.ssh/id_ed25519_backup" \
   calum@optiplex.local:/srv/storage/immich/ \
@@ -54,8 +54,15 @@ echo "Applying Restic retention policy: $(date)"
 
 restic -r "$RESTIC_REPOSITORY" forget \
   --keep-daily 7 \
-  --keep-weekly 4 \
-  --prune
+  --keep-weekly 4
+
+if [ "$(date +%u)" -eq 7 ]; then
+    echo "Running weekly Restic prune: $(date)"
+
+    restic -r "$RESTIC_REPOSITORY" prune
+
+    echo "Restic prune complete: $(date)"
+fi
 
 echo "Restic retention complete: $(date)"
 
