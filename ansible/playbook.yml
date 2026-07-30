@@ -1,0 +1,85 @@
+---
+- name: Configure Pi backup node
+  hosts: backup_nodes
+  become: true
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - restic
+          - rsync
+          - git
+          - openssh-client
+        state: present
+        update_cache: true
+
+    - name: Create backup directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: calum
+        group: calum
+        mode: "0755"
+      loop:
+        - /srv/backup
+        - /srv/backup/incoming
+        - /srv/backup/restic
+
+    - name: Create scripts directory
+      file:
+        path: /home/calum/bin
+        state: directory
+        owner: calum
+        group: calum
+        mode: "0755"
+
+    - name: Schedule backup job
+      cron:
+        name: "Nightly Optiplex backup"
+        minute: "0"
+        hour: "3"
+        user: calum
+        job: "/home/calum/bin/backup-optiplex.sh >> /home/calum/backup.log 2>&1"
+
+    - name: Check backup SSH key exists
+      stat:
+        path: /home/calum/.ssh/id_ed25519_backup
+      register: backup_key
+
+    - name: Warn if backup SSH key is missing
+      fail:
+        msg: |
+          Missing SSH key: /home/calum/.ssh/id_ed25519_backup
+
+          This key is required for Pi -> Optiplex backup access.
+          Create it with:
+
+          ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_backup
+
+          Then install the public key on the Optiplex with:
+
+          ssh-copy-id -i ~/.ssh/id_ed25519_backup.pub calum@optiplex.local
+      when: not backup_key.stat.exists
+
+    - name: Deploy backup script
+      copy:
+        src: ../backup-optiplex.sh
+        dest: /home/calum/bin/backup-optiplex.sh
+        owner: calum
+        group: calum
+        mode: "0755"
+
+    - name: Check Restic password file exists
+      stat:
+        path: /home/calum/.restic-password
+      register: restic_password
+
+    - name: Warn if Restic password file is missing
+      fail:
+        msg: |
+          Missing Restic password file:
+          /home/calum/.restic-password
+
+          Restore this file before running backups.
+      when: not restic_password.stat.exists
