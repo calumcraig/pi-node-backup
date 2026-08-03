@@ -14,6 +14,19 @@
         state: present
         update_cache: true
 
+    - name: Ensure /srv exists
+      file:
+        path: /srv
+        state: directory
+
+    - name: Mount backup SSD
+      mount:
+        path: /srv
+        src: UUID=b15cf916-8c74-48b8-b6d2-6a096df3eb35
+        fstype: ext4
+        opts: defaults
+        state: mounted
+
     - name: Create backup directories
       file:
         path: "{{ item }}"
@@ -22,9 +35,8 @@
         group: calum
         mode: "0755"
       loop:
-        - /srv/backup
-        - /srv/backup/incoming
-        - /srv/backup/restic
+        - /srv/incoming
+        - /srv/restic
 
     - name: Create scripts directory
       file:
@@ -40,7 +52,7 @@
         minute: "0"
         hour: "3"
         user: calum
-        job: "/home/calum/bin/backup-optiplex.sh >> /home/calum/backup.log 2>&1"
+        job: "/home/calum/bin/backup-optiplex.sh >> /srv/backup.log 2>&1"
 
     - name: Check backup SSH key exists
       stat:
@@ -64,7 +76,7 @@
 
     - name: Deploy backup script
       copy:
-        src: ../backup-optiplex.sh
+        src: files/backup-optiplex.sh
         dest: /home/calum/bin/backup-optiplex.sh
         owner: calum
         group: calum

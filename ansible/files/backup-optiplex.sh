@@ -3,7 +3,7 @@
 set -euo pipefail
 
 export RESTIC_PASSWORD_FILE=/home/calum/.restic-password
-RESTIC_REPOSITORY=/srv/backup/restic
+RESTIC_REPOSITORY=/srv/restic
 
 echo "Starting backup: $(date)"
 
@@ -16,7 +16,7 @@ rsync -az --delete-delay \
   --rsync-path="sudo rsync" \
   -e "ssh -i /home/calum/.ssh/id_ed25519_backup" \
   calum@optiplex.local:/srv/backup-staging/ \
-  /srv/backup/incoming/
+  /srv/incoming/
 
 rsync -az --delete-delay \
   --rsync-path="sudo rsync" \
@@ -24,7 +24,7 @@ rsync -az --delete-delay \
   --exclude='jellyfin/config/log/' \
   -e "ssh -i /home/calum/.ssh/id_ed25519_backup" \
   calum@optiplex.local:/srv/docker/ \
-  /srv/backup/incoming/docker/
+  /srv/incoming/docker/
 
 rsync -az --delete-delay \
   --rsync-path="sudo rsync" \
@@ -32,7 +32,7 @@ rsync -az --delete-delay \
   --exclude='postgres-immich/' \
   -e "ssh -i /home/calum/.ssh/id_ed25519_backup" \
   calum@optiplex.local:/srv/data/ \
-  /srv/backup/incoming/data/
+  /srv/incoming/data/
 
 echo "Application data backup complete: $(date)"
 
@@ -40,13 +40,13 @@ rsync -az --delete-delay \
   --rsync-path="sudo rsync" \
   -e "ssh -i /home/calum/.ssh/id_ed25519_backup" \
   calum@optiplex.local:/srv/storage/immich/ \
-  /srv/backup/incoming/immich/
+  /srv/incoming/immich/
 
 echo "Immich library backup complete: $(date)"
 
 echo "Starting Restic backup: $(date)"
 
-restic -r "$RESTIC_REPOSITORY" backup /srv/backup/incoming
+restic -r "$RESTIC_REPOSITORY" backup /srv/incoming
 
 echo "Restic backup complete: $(date)"
 
