@@ -46,6 +46,16 @@
         group: calum
         mode: "0755"
 
+    - name: Allow backup script to shut down Pi without password
+      copy:
+        dest: /etc/sudoers.d/pi-node-backup
+        content: |
+          calum ALL=(root) NOPASSWD: /usr/sbin/shutdown
+        owner: root
+        group: root
+        mode: "0440"
+        validate: '/usr/sbin/visudo -cf %s'
+
     - name: Schedule backup job
       cron:
         name: "Nightly Optiplex backup"
