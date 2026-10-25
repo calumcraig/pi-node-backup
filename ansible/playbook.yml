@@ -19,14 +19,6 @@
         path: /srv
         state: directory
 
-    - name: Mount backup SSD
-      mount:
-        path: /srv
-        src: UUID=b15cf916-8c74-48b8-b6d2-6a096df3eb35
-        fstype: ext4
-        opts: defaults
-        state: mounted
-
     - name: Create backup directories
       file:
         path: "{{ item }}"
