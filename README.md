@@ -108,7 +108,7 @@ The node is designed to be rebuilt rather than manually repaired.
 
 Recovery process:
 
-1. Install Pi OS.
+1. Install Pi OS Lite (64-bit).
 2. Configure SSH access.
 3. Run the Ansible playbook.
 4. Restore required secrets.
