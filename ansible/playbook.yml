@@ -48,6 +48,14 @@
         mode: "0440"
         validate: '/usr/sbin/visudo -cf %s'
 
+      - name: Create backup log file
+        file:
+          path: /srv/backup.log
+          state: touch
+          owner: calum
+          group: calum
+          mode: "0644"
+
     - name: Schedule backup job
       cron:
         name: "Nightly Optiplex backup"
