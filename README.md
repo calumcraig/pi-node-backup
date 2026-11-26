@@ -9,7 +9,7 @@ The Pi acts as a passive backup node for the home server. It connects to the ser
 The backup flow is:
 
 ```
-Optiplex server
+Home server
       |
       | rsync / SSH
       v
