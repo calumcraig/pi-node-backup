@@ -2,7 +2,7 @@
 
 Ansible configuration and scripts for the Raspberry Pi backup node.
 
-The Pi acts as a passive backup node for the home server. It connects to the Optiplex server, retrieves backup data, creates encrypted Restic snapshots, and powers down after successful completion.
+The Pi acts as a passive backup node for the home server. It connects to the server, retrieves backup data, creates encrypted Restic snapshots, and powers down after successful completion.
 
 ## Architecture
 
